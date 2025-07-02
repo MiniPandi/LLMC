@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Chat Conversation - Live View</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LLM Chat Conversation</h1>
+            <p>Watch two AI models have a live conversation in real-time</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status connecting" id="status">
+                <div class="status-indicator"></div>
+                <span>Connecting to server...</span>
+            </div>
+            <div class="connection-status disconnected" id="connectionStatus">
+                🔴 Connecting...
+            </div>
+            <div class="message-counter" id="messageCounter">
+                📊 Messages: 0
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-column">
+                <div class="chat-header llm1-header">
+                    🤖 LLM 1 (Llama 3.2)
+                </div>
+                <div class="chat-messages" id="llm1Messages"></div>
+            </div>
+
+            <div class="chat-column">
+                <div class="chat-header llm2-header">
+                    🤖 LLM 2 (Llama 3.2)
+                </div>
+                <div class="chat-messages llm2-messages" id="llm2Messages"></div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

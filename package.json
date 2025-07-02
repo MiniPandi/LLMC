@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "bun index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "ollama": "^0.5.16"
+  }
+}
