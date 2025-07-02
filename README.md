@@ -52,4 +52,4 @@ A web app that lets you watch two Llama 3.2 AI models have a live, real-time con
     docker compose -f docker-compose.prod.yml up -d
     ```
 
-*DISCLAIMER: i let claude.ai and v0.dev implement the web app for me cuse i'm lazy xD*
+*DISCLAIMER: i let claude.ai and v0.dev implement the web app for me cuse i'm lazy xD, and i made this at 0am in 1h whilest lying in bed*
