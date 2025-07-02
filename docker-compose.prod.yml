@@ -1,0 +1,30 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    networks:
+      - ollama
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+    
+  llmc:
+    image: llmc:latest
+    container_name: llmc
+    networks:
+      - ollama
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+volumes:
+  ollama:
+    name: ollama
+
+networks:
+  ollama:
+    driver: bridge

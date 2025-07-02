@@ -1,13 +1,14 @@
 import express from 'express';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
-import ollama from 'ollama';
+import { Ollama } from 'ollama'
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const ollama = new Ollama({ host: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434' })
 const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
@@ -20,15 +21,16 @@ app.get('/', (req, res) => {
 
 class LLMChat {
   constructor() {
-    this.systemMessage = { 
-      role: 'system', 
-      content: 'You are an LLM having a conversation with another LLM. Keep responses concise and engaging.' 
+    this.systemMessage = {
+      role: 'system',
+      content: 'You are an LLM having a conversation with another LLM. Keep responses concise and engaging.'
     };
     this.chat1 = [];
     this.chat2 = [];
     this.isRunning = false;
     this.clients = new Set();
     this.messageCount = 0;
+    this.model = process.env.MODEL || 'llama3.2';
   }
 
   addClient(ws) {
@@ -57,12 +59,40 @@ class LLMChat {
 
   async startConversation() {
     if (this.isRunning) return;
-    ollama.pull('llama3.2');
-    
+
+    const model = this.model;
+    console.log(`downloading ${model}...`)
+    let currentDigestDone = false
+    const stream = await ollama.pull({ model: model, stream: true })
+    for await (const part of stream) {
+      if (part.digest) {
+        let percent = 0;
+        if (part.completed && part.total) {
+          percent = Math.round((part.completed / part.total) * 100);
+        }
+        if (process.stdout.clearLine && process.stdout.cursorTo) {
+          process.stdout.clearLine(0); // Clear the current line
+          process.stdout.cursorTo(0); // Move cursor to the beginning of the line
+          process.stdout.write(`${part.status} ${percent}%...`); // Write the new text
+        } else {
+          // Fallback for environments like Bun where these functions are not available
+          console.log(`${part.status} ${percent}%...`);
+        }
+        if (percent === 100 && !currentDigestDone) {
+          console.log(); // Output to a new line
+          currentDigestDone = true;
+        } else {
+          currentDigestDone = false;
+        }
+      } else {
+        console.log(part.status);
+      }
+    }
+
     this.isRunning = true;
     this.messageCount = 0;
     this.broadcast({ type: 'status', isRunning: true });
-    
+
     try {
       await this.chatAs1();
     } catch (error) {
@@ -92,10 +122,10 @@ class LLMChat {
     }
 
     this.broadcast({ type: 'thinking', llm: 1 });
-    
+
     let content = '';
     const res = await ollama.chat({
-      model: 'llama3.2',
+      model: this.model,
       messages: [this.systemMessage, ...this.chat1],
       stream: true
     });
@@ -103,9 +133,9 @@ class LLMChat {
     for await (const part of res) {
       if (!this.isRunning) break;
       content += part.message.content;
-      this.broadcast({ 
-        type: 'stream', 
-        llm: 1, 
+      this.broadcast({
+        type: 'stream',
+        llm: 1,
         content: part.message.content,
         fullContent: content
       });
@@ -117,9 +147,9 @@ class LLMChat {
     this.chat2.push({ role: 'user', content });
     this.messageCount++;
 
-    this.broadcast({ 
-      type: 'message_complete', 
-      llm: 1, 
+    this.broadcast({
+      type: 'message_complete',
+      llm: 1,
       content,
       messageCount: this.messageCount
     });
@@ -137,10 +167,10 @@ class LLMChat {
     }
 
     this.broadcast({ type: 'thinking', llm: 2 });
-    
+
     let content = '';
     const res = await ollama.chat({
-      model: 'llama3.2',
+      model: this.model,
       messages: [this.systemMessage, ...this.chat2],
       stream: true
     });
@@ -148,9 +178,9 @@ class LLMChat {
     for await (const part of res) {
       if (!this.isRunning) break;
       content += part.message.content;
-      this.broadcast({ 
-        type: 'stream', 
-        llm: 2, 
+      this.broadcast({
+        type: 'stream',
+        llm: 2,
         content: part.message.content,
         fullContent: content
       });
@@ -162,9 +192,9 @@ class LLMChat {
     this.chat1.push({ role: 'user', content });
     this.messageCount++;
 
-    this.broadcast({ 
-      type: 'message_complete', 
-      llm: 2, 
+    this.broadcast({
+      type: 'message_complete',
+      llm: 2,
       content,
       messageCount: this.messageCount
     });
