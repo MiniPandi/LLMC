@@ -234,6 +234,14 @@ app.get('/modelInfo', async (req, res) => {
   }
 })
 
+app.get('/getConversation', async (req, res) => {
+  try {
+    res.status(200).send(llmChat.visualChat1);
+  } catch (error) {
+    res.status(500).send({ "error": "Internal Server error" })
+  }
+})
+
 wss.on('connection', (ws) => {
   llmChat.addClient(ws);
 

@@ -19,6 +19,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -62,7 +63,7 @@ body {
   margin-top: 1rem;
 }
 
-.tab-button {
+.tab-button, .button {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
@@ -71,14 +72,15 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.9rem;
+  text-decoration: none;
 }
 
-.tab-button:hover {
+.tab-button:hover, .button:hover {
   background: var(--bg-tertiary);
   border-color: var(--border-hover);
 }
 
-.tab-button.active {
+.tab-button.active, .button.active {
   background: var(--accent-blue);
   color: white;
   border-color: var(--accent-blue);
@@ -293,32 +295,32 @@ body {
   font-size: 0.85rem;
 }
 
-.models-container {
+.models-container, .download-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   padding: 1rem 0;
 }
 
-.model-info {
+.model-info, .download-info {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   padding: 1.5rem;
 }
 
-.model-info h3 {
+.model-info h3, .download-info h3 {
   margin-bottom: 1rem;
   color: var(--text-primary);
 }
 
-.model-details {
+.model-details, .raw-chat {
   color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.6;
 }
 
-.model-details pre {
+.model-details pre, .raw-chat pre {
   background: var(--bg-primary);
   padding: 1rem;
   border-radius: var(--radius);
